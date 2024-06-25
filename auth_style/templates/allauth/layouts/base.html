@@ -1,0 +1,118 @@
+{% load allauth %}
+{% load i18n %}
+{% load static %}
+<!DOCTYPE html>
+<html class="bg-base-200">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>
+      {% block head_title %}{% endblock head_title %}
+    </title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="{% static 'auth_style/dist/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'auth_style/dist/icons.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@200;300;400;600;700&display=swap" rel="stylesheet">
+    {% block extra_head %}{% endblock extra_head %}
+  </head>
+  <body>
+    {% block body %}
+      <div class="flex flex-col text-center px-4 sm:navbar sm:flex-row">
+        <span class="grow">
+          {% setvar site_name %}
+            {% if request.site %}
+              {{ request.site.name }}
+            {% elif site %}
+              {{ site.name }}
+            {% endif %}
+          {% endsetvar %}
+          {% if site_name %}
+            <span class="text-2xl font-bold">
+              {{ site_name }}
+            </span>
+          {% endif %}
+        </span>
+        {# TODO: display username and user info #}
+        {% if user.is_authenticated %}
+          {% url 'account_email' as email_url %}
+          {% if email_url %}
+            <a class="btn btn-ghost btn-sm" href="{{ email_url }}">
+              <i class="ri-mail-settings-line ri-lg"></i>
+              <span>{% trans "Change Email" %}</span>
+            </a>
+          {% endif %}
+          {% url 'account_change_password' as change_password_url %}
+          {% if change_password_url %}
+            <a class="btn btn-ghost btn-sm" href="{{ change_password_url }}">
+              <i class="ri-key-2-line ri-lg"></i>
+              {% trans "Change Password" %}
+            </a>
+          {% endif %}
+          {% url 'mfa_index' as mfa_url %}
+          {% if mfa_url %}
+            <a class="btn btn-ghost btn-sm" href="{{ mfa_url }}">
+              <i class="ri-lock-line ri-lg"></i>
+              {% trans "Two-Factor Authentication" %}
+            </a>
+          {% endif %}
+          {% url 'socialaccount_connections' as connections_url %}
+          {% if connections_url %}
+            <a class="btn btn-ghost btn-sm" href="{{ connections_url }}">
+              <i class="ri-link ri-lg"></i>
+              {% trans "Account Connections" %}
+            </a>
+          {% endif %}
+          {% url 'usersessions_list' as usersessions_list_url %}
+          {% if usersessions_list_url %}
+            <a class="btn btn-ghost btn-sm" href="{{ usersessions_list_url }}">
+              <i class="ri-user-location-line ri-lg"></i>
+              {% trans "Sessions" %}
+            </a>
+          {% endif %}
+          {% url 'account_logout' as logout_url %}
+          {% if logout_url %}
+            <a class="btn btn-ghost btn-sm" href="{{ logout_url }}">
+              <i class="ri-logout-box-line ri-lg"></i>
+              {% trans "Sign Out" %}
+            </a>
+          {% endif %}
+        {% else %}
+          {% url 'account_login' as login_url %}
+          {% if login_url %}
+            <a class="btn btn-ghost btn-sm" href="{{ login_url }}">
+              <i class="ri-user-shared-line ri-lg"></i>
+              {% trans "Sign In" %}
+            </a>
+          {% endif %}
+          {% url 'account_signup' as signup_url %}
+          {% if signup_url %}
+            <a class="btn btn-ghost btn-sm" href="{{ signup_url }}">
+              <i class="ri-user-add-line ri-lg"></i>
+              {% trans "Sign Up" %}
+            </a>
+          {% endif %}
+        {% endif %}
+      </div>
+      <div class="flex flex-col sm:mx-auto sm:w-full sm:max-w-lg">
+        {% if messages %}
+          <ul class="flex flex-col gap-2 mb-6">
+            {% for message in messages %}
+              <li>
+                {% element alert level=message.tags %}
+                  {% slot message %}{{ message }}{% endslot %}
+                {% endelement %}
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+        <div class="card bg-base-100 glass shadow">
+          <div class="card-body">
+            {% block content %}{% endblock content %}
+          </div>
+        </div>
+      </div>
+    {% endblock body %}
+    {% block extra_body %}{% endblock extra_body %}
+  </body>
+</html>

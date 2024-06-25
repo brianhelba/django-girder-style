@@ -1,7 +1,7 @@
 {% load allauth %}
-<form method="{{ attrs.method }}" action="{{ attrs.action }}">
-    {% slot body %}
-    {% endslot %}
-    {% slot actions %}
-    {% endslot %}
+<form method="{{ attrs.method }}" action="{{ attrs.action }}" class="flex flex-col gap-4">
+  {% slot body %}{% endslot %}
+  <span class="card-actions flex-col items-stretch text-center">
+    {% slot actions %}{% endslot %}
+  </span>
 </form>
