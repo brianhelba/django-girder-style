@@ -1,0 +1,114 @@
+{% load allauth %}
+{% if attrs.type == "checkbox" or attrs.type == "radio" %}
+  <div class="form-control">
+    <label class="label justify-start gap-2 cursor-pointer">
+      <input
+        class="{% if attrs.type == "checkbox" %}checkbox{% else %}radio{% endif %}"
+        {% if attrs.required %}required{% endif %}
+        {% if attrs.disabled %}disabled{% endif %}
+        name="{{ attrs.name }}"
+        id="{{ attrs.id }}"
+        value="{{ attrs.value|default_if_none:'' }}"
+        {% if attrs.checked %}checked{% endif %}
+        type="{{ attrs.type }}"
+      />
+      <span class="label-text {% if attrs.type == "checkbox" %}font-bold{% endif %}">
+        {% slot label %}{% endslot %}
+      </span>
+    </label>
+
+    {# TODO: errors #}
+
+  </div>
+{% elif attrs.type == "textarea" %}
+  <div class="form-control">
+    {% if not attrs.unlabeled %}
+      <div class="label">
+        <label
+          {% if attrs.id %}id="{{ attrs.id }}"{% endif %}
+          class="label-text font-bold"
+        >
+          {% slot label %}{% endslot %}
+        </label>
+      </div>
+    {% endif %}
+    <textarea
+      class="textarea textarea-bordered {% if attrs.readonly %}resize-none{% endif %}"
+      {% if attrs.required %}required{% endif %}
+      {% if attrs.rows %}rows="{{ attrs.rows }}"{% endif %}
+      {% if attrs.disabled %}disabled{% endif %}
+      {% if attrs.readonly %}readonly{% endif %}
+      {% if attrs.name %}name="{{ attrs.name }}"{% endif %}
+      {% if attrs.id %}id="{{ attrs.id }}"{% endif %}
+      {% if attrs.placeholder %}placeholder="{{ attrs.placeholder }}"{% endif %}
+    >{% slot value %}{% endslot %}</textarea>
+  </div>
+{% elif attrs.type == "hidden" %}
+  <input
+    {% if attrs.required %}required{% endif %}
+    name="{{ attrs.name }}"
+    id="{{ attrs.id }}"
+    value="{{ attrs.value|default_if_none:'' }}"
+    type="hidden"
+  >
+{% else %}
+  {% setvar input %}
+    <input
+      {% if attrs.required %}required{% endif %}
+      {% if attrs.disabled %}disabled{% endif %}
+      {% if attrs.readonly %}readonly{% endif %}
+      {% if attrs.tabindex %}tabindex="{{ attrs.tabindex }}"{% endif %}
+      {% if attrs.name %}name="{{ attrs.name }}"{% endif %}
+      {% if attrs.id %}id="{{ attrs.id }}"{% endif %}
+      {% if attrs.placeholder %}placeholder="{{ attrs.placeholder }}"{% endif %}
+      {% if attrs.autocomplete %}autocomplete="{{ attrs.autocomplete }}"{% endif %}
+      value="{{ attrs.value|default_if_none:'' }}"
+      type="{{ attrs.type }}"
+      class="{% if attrs.unlabeled %}grow{% else %}input input-bordered{% endif %} {% if attrs.errors %}input-error{% endif %}"
+    />
+  {% endsetvar %}
+
+  <div class="form-control">
+    {% if not attrs.unlabeled %}
+      <div class="label">
+        <label
+          {% if attrs.id %}id="{{ attrs.id }}"{% endif %}
+          class="label-text font-bold"
+        >
+          {% slot label %}{% endslot %}
+        </label>
+      </div>
+    {% endif %}
+
+    {% if attrs.unlabeled %}
+      <label class="input input-bordered {% if attrs.errors %}input-error{% endif %} flex items-center gap-2">
+        <span class="label-text font-bold">{% slot label %}{% endslot %}</span>
+        {{ input }}
+      </label>
+    {% else %}
+      {{ input }}
+    {% endif %}
+
+    {# If empty, "slots.help_text" is still a list of whitespace-containing strings #}
+    {% with help_text_is_set=slots.help_text|join:''|slugify %}
+      {% if attrs.errors or help_text_is_set %}
+        <div class="label">
+          <div class="label-text-alt">
+            {% if attrs.errors %}
+              <ul class="errorlist text-error">
+                {% for error in attrs.errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+            {% if help_text_is_set %}
+              <span>
+                {% slot help_text %}{% endslot %}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+    {% endwith %}
+  </div>
+{% endif %}
